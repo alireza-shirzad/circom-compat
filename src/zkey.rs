@@ -25,20 +25,18 @@
 //!  PointsC(8)
 //!  PointsH(9)
 //!  Contributions(10)
+use crate::patch::ConstraintMatrices;
+use ark_bn254::{Bn254, Fq, Fq2, Fr, G1Affine, G2Affine};
 use ark_ff::{BigInteger256, PrimeField};
-use ark_relations::r1cs::ConstraintMatrices;
+use ark_groth16::{ProvingKey, VerifyingKey};
 use ark_serialize::{CanonicalDeserialize, SerializationError};
 use ark_std::log2;
 use byteorder::{LittleEndian, ReadBytesExt};
-
+use num_traits::Zero;
 use std::{
     collections::HashMap,
     io::{Read, Seek, SeekFrom},
 };
-
-use ark_bn254::{Bn254, Fq, Fq2, Fr, G1Affine, G2Affine};
-use ark_groth16::{ProvingKey, VerifyingKey};
-use num_traits::Zero;
 
 type IoResult<T> = Result<T, SerializationError>;
 
@@ -900,6 +898,10 @@ mod tests {
         let full_assignment = wtns
             .calculate_witness_element::<Fr, _>(&mut store, inputs, false)
             .unwrap();
+        let matrices = [matrices.a, matrices.b, matrices.c]
+            .iter()
+            .map(|m| m.clone().into())
+            .collect::<Vec<_>>();
         let proof = Groth16::<Bn254, CircomReduction>::create_proof_with_reduction_and_matrices(
             &params,
             r,

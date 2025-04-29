@@ -1,4 +1,4 @@
-use ark_relations::r1cs::{
+use ark_relations::gr1cs::{
     ConstraintSynthesizer, ConstraintSystemRef, LinearCombination, SynthesisError, Variable,
 };
 
@@ -71,7 +71,7 @@ impl<F: PrimeField> ConstraintSynthesizer<F> for CircomCircuit<F> {
         };
 
         for constraint in &self.r1cs.constraints {
-            cs.enforce_constraint(
+            cs.enforce_r1cs_constraint(
                 make_lc(&constraint.0),
                 make_lc(&constraint.1),
                 make_lc(&constraint.2),
@@ -87,7 +87,7 @@ mod tests {
     use super::*;
     use crate::{CircomBuilder, CircomConfig};
     use ark_bn254::Fr;
-    use ark_relations::r1cs::ConstraintSystem;
+    use ark_relations::gr1cs::ConstraintSystem;
 
     #[tokio::test]
     async fn satisfied() {

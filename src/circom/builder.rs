@@ -99,7 +99,7 @@ impl<F: PrimeField> CircomBuilder<F> {
 
         // sanity check
         debug_assert!({
-            use ark_relations::r1cs::{ConstraintSynthesizer, ConstraintSystem};
+            use ark_relations::gr1cs::{ConstraintSynthesizer, ConstraintSystem};
             let cs = ConstraintSystem::<F>::new_ref();
             circom.clone().generate_constraints(cs.clone()).unwrap();
             let is_satisfied = cs.is_satisfied().unwrap();
