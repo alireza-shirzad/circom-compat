@@ -43,6 +43,7 @@ ark-poly = { version = "0.5.0", default-features = false, features = [
 ] }
 ark-relations = { git = "https://github.com/arkworks-rs/snark.git", default-features = false }
 ark-serialize = { version = "0.5.0", default-features = false }
+rayon = { version = "1.5.0" }
 
 
 # decoding of data
