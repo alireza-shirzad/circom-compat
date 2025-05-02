@@ -48,9 +48,7 @@ struct Section {
 }
 
 /// Reads a SnarkJS ZKey file into an Arkworks ProvingKey.
-pub fn read_zkey<R: Read + Seek>(
-    reader: &mut R,
-) -> IoResult<(ProvingKey<Bn254>, NPIndex<Fr>)> {
+pub fn read_zkey<R: Read + Seek>(reader: &mut R) -> IoResult<(ProvingKey<Bn254>, NPIndex<Fr>)> {
     let mut binfile = BinFile::new(reader)?;
     let proving_key = binfile.proving_key()?;
     let matrices = binfile.matrices()?;
