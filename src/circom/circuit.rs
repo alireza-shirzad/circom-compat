@@ -1,10 +1,10 @@
+use ark_ff::PrimeField;
 use ark_relations::gr1cs::{
     ConstraintSynthesizer, ConstraintSystemRef, LinearCombination, SynthesisError, Variable,
 };
-use ark_ff::PrimeField;
 
-use rayon::prelude::*;
 use color_eyre::Result;
+use rayon::prelude::*;
 
 use super::R1CS;
 
@@ -64,18 +64,17 @@ impl<F: PrimeField> ConstraintSynthesizer<F> for CircomCircuit<F> {
             }
         };
         let make_lc = |lc_data: &[(usize, F)]| {
-            let lc = lc_data.iter().map(|(index, coeff)| (*coeff, make_index(*index))).collect::<Vec<_>>();
+            let lc = lc_data
+                .iter()
+                .map(|(index, coeff)| (*coeff, make_index(*index)))
+                .collect::<Vec<_>>();
             LinearCombination(lc)
         };
-        let constraints = self.r1cs.constraints
+        let constraints = self
+            .r1cs
+            .constraints
             .par_iter()
-            .map(|(a, b, c)| {
-                (
-                    make_lc(a),
-                    make_lc(b),
-                    make_lc(c),
-                )
-            })
+            .map(|(a, b, c)| (make_lc(a), make_lc(b), make_lc(c)))
             .collect::<Vec<_>>();
         for (a, b, c) in constraints {
             cs.enforce_r1cs_constraint(a, b, c)?;

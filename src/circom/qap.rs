@@ -35,7 +35,7 @@ impl R1CSToQAP for CircomReduction {
         let mut a = vec![zero; domain_size];
         let mut b = vec![zero; domain_size];
 
-        (a[..num_constraints])
+        a[..num_constraints]
             .par_iter_mut()
             .zip(&mut (b[..num_constraints]))
             .zip(&matrices[0])
@@ -83,8 +83,7 @@ impl R1CSToQAP for CircomReduction {
         D::distribute_powers_and_mul_by_const(&mut c, root_of_unity, F::one());
         domain.fft_in_place(&mut c);
 
-        (ab)
-            .par_iter_mut()
+        ab.par_iter_mut()
             .zip(c)
             .for_each(|(ab_i, c_i)| *ab_i -= &c_i);
 
