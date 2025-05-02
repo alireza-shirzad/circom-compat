@@ -8,7 +8,7 @@ use ark_relations::utils::matrix::Matrix;
 /// Also contains metadata on the structure of the constraint system
 /// and the matrices.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ConstraintMatrices<F: Field> {
+pub struct NPIndex<F: Field> {
     /// The number of variables that are "public instances" to the constraint
     /// system.
     pub num_instance_variables: usize,
