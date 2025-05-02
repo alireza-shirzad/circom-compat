@@ -1,15 +1,14 @@
-use ark_ff::PrimeField;
-use num_bigint::BigInt;
-use std::{collections::HashMap, fs::File, io::BufReader, path::Path};
-use wasmer::Store;
-
 use super::{CircomCircuit, R1CS};
-
 use crate::{
     circom::R1CSFile,
     witness::{Wasm, WitnessCalculator},
 };
+use ark_ff::PrimeField;
 use color_eyre::Result;
+use num_bigint::BigInt;
+use serde::Deserialize;
+use std::{collections::HashMap, fs::File, io::BufReader, path::Path};
+use wasmer::Store;
 
 #[derive(Debug)]
 pub struct CircomBuilder<F: PrimeField> {
@@ -69,6 +68,30 @@ impl<F: PrimeField> CircomBuilder<F> {
         let values = self.inputs.entry(name.to_string()).or_default();
         values.push(val.into());
     }
+    // Loads the input.json file from the specified path
+    pub fn load_input_json<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+
+        let raw: HashMap<String, BigIntOrVec> = serde_json::from_reader(reader)?;
+
+        let parsed = raw
+            .into_iter()
+            .map(|(k, v)| {
+                let vec = match v {
+                    BigIntOrVec::Single(s) => vec![s.parse::<BigInt>()?],
+                    BigIntOrVec::Vec(vs) => vs
+                        .into_iter()
+                        .map(|s| s.parse::<BigInt>())
+                        .collect::<Result<_, _>>()?,
+                };
+                Ok((k, vec))
+            })
+            .collect::<Result<HashMap<_, _>, color_eyre::eyre::Error>>()?;
+
+        self.inputs = parsed;
+        Ok(())
+    }
 
     /// Generates an empty circom circuit with no witness set, to be used for
     /// generation of the trusted setup parameters
@@ -115,4 +138,11 @@ impl<F: PrimeField> CircomBuilder<F> {
 
         Ok(circom)
     }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+enum BigIntOrVec {
+    Single(String),
+    Vec(Vec<String>),
 }
